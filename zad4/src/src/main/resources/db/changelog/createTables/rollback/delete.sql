@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS interactions;
+DROP TABLE IF EXISTS client;
+DROP TABLE IF EXISTS company;
+
