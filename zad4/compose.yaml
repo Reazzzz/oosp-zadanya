@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: count_client_db_container
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: count_client_db
+    ports:
+      - "5433:5432"  # Внешний порт 5433, внутренний 5432
+    volumes:
+      - count_client_pg_data:/var/lib/postgresql/data
+      #- ./postgresql.conf:/etc/postgresql/postgresql.conf  # Монтирование файла конфигурации
+    #command: "postgres -c config_file=/etc/postgresql/postgresql.conf"  # Указание использовать кастомный конфиг
+
+volumes:
+  count_client_pg_data:

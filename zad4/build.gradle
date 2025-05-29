@@ -1,0 +1,88 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.liquibase.gradle' version '2.2.0'
+	id 'nu.studer.jooq' version '8.1'
+}
+
+group = 'com.apiDB'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+	//maven { url 'https://repo.jooq.org' } // Для коммерческой версии jOOQ
+}
+
+
+
+dependencies {
+	runtimeOnly 'org.postgresql:postgresql:42.7.2'
+	implementation 'org.springframework.boot:spring-boot-starter-jooq'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.liquibase:liquibase-core'
+	//implementation 'org.jooq:jooq:3.19.11'
+	liquibaseRuntime 'org.liquibase:liquibase-core:4.23.0'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	liquibaseRuntime 'info.picocli:picocli:4.7.5'
+	jooqGenerator 'org.postgresql:postgresql:42.7.2'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	liquibaseRuntime (sourceSets.main.output)
+}
+jooq {
+	version = '3.19.11'
+	//edition = 'pro'
+	configurations {
+		main {
+			generationTool {
+				logging = 'WARN'
+				jdbc {
+					driver = 'org.postgresql.Driver'
+					url = 'jdbc:postgresql://localhost:5433/count_client_db'
+					user = 'myuser'
+					password = 'mypassword'
+				}
+				generator {
+					name = 'org.jooq.codegen.JavaGenerator'
+					database {
+						inputSchema = "public"
+					}
+					target {
+						packageName = 'jooq'
+						directory = 'src/main/java/jooq'
+					}
+				}
+			}
+		}
+	}
+}
+
+liquibase {
+	activities {
+		register('main') {
+			changeLogFile 'src/main/resources/db/master.xml'
+			url 'jdbc:postgresql://localhost:5433/count_client_db'
+			username 'myuser'
+			password 'mypassword'
+			driver 'org.postgresql.Driver'
+			classpath sourceSets.main.runtimeClasspath.asPath
+			//classpath 'src/main/resources'
+		}
+	}
+	runList = 'main'
+}
+
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
